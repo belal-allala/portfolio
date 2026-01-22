@@ -143,7 +143,7 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img 
-              src="doc/youcode.png" 
+              src="/youcode.png" 
               alt="YouCode" 
               className="h-6 opacity-90 brightness-150"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -202,7 +202,7 @@ const App: React.FC = () => {
           <div className="absolute -inset-10 bg-gradient-to-tr from-blue-600/30 to-purple-600/30 opacity-20 blur-[100px] group-hover:opacity-40 transition-opacity"></div>
           <div className="relative w-80 h-80 md:w-[450px] md:h-[550px] rounded-[60px] overflow-hidden border-4 border-slate-800 p-2 bg-slate-900 shadow-3xl">
              <img 
-              src="doc/Generated Image March 16, 2025 - 10_43PM.png.jpeg" 
+              src="/Generated Image March 16, 2025 - 10_43PM.png.jpeg" 
               alt={PERSONAL_INFO.name}
               className="w-full h-full object-cover rounded-[52px] group-hover:scale-105 transition-all duration-1000 ease-out"
               onError={(e) => { e.currentTarget.src = "https://picsum.photos/seed/belal-pro/800/1000"; }}
