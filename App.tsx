@@ -43,8 +43,8 @@ import {
 
 // Images from public folder - using BASE_URL for proper path resolution
 // const baseUrl = 'public/';
-const youcodeLogo = `public/youcode.png`;
-const profileImage = `public/profile-image.jpeg`;
+const youcodeLogo = `doc/youcode.png`;
+const profileImage = `doc/profile-image.jpeg`;
 
 const TechLogo = ({ name }: { name: string }) => {
   const slugMap: Record<string, string> = {
