@@ -42,9 +42,9 @@ import {
 } from './constants';
 
 // Images from public folder - using BASE_URL for proper path resolution
-const baseUrl = '/doc/';
-const youcodeLogo = `${baseUrl}youcode.png`;
-const profileImage = `${baseUrl}profile-image.jpeg`;
+// const baseUrl = 'public/';
+const youcodeLogo = `public/youcode.png`;
+const profileImage = `public/profile-image.jpeg`;
 
 const TechLogo = ({ name }: { name: string }) => {
   const slugMap: Record<string, string> = {
