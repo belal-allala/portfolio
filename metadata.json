@@ -1,0 +1,7 @@
+{
+  "name": "Belal Allala Portfolio",
+  "description": "Professional Full-Stack Developer portfolio for Belal Allala, specializing in Java, Angular, and modern web technologies.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
