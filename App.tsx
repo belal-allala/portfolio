@@ -28,7 +28,7 @@ import {
   CheckCircle,
   Lightbulb
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Section } from './components/Section';
 import { 
   PERSONAL_INFO, 
@@ -96,14 +96,13 @@ const TechLogo = ({ name }: { name: string }) => {
   );
 };
 
-const API_KEY = import.meta.env.VITE_API_KEY as string;
-const MODEL = "gemini-3-flash-preview";
-const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const MODEL_NAME = "gemini-3-flash-preview"; // Utilisation d'un modèle stable
 
 const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
-  const [chatHistory, setChatHistory] = useState<{role: 'user' | 'bot', text: string}[]>([
+  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot', text: string }[]>([
     { role: 'bot', text: "Bonjour ! Je suis l'assistant de Belal. Je peux vous parler de ses projets Full-Stack ou de sa recherche d'opportunité professionnelle. Comment puis-je vous aider ?" }
   ]);
   const [isThinking, setIsThinking] = useState(false);
@@ -119,31 +118,80 @@ const App: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!chatInput.trim()) return;
+
     const userMessage = chatInput;
     setChatInput("");
     setChatHistory(prev => [...prev, { role: 'user', text: userMessage }]);
     setIsThinking(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: API_KEY });
+      // 1. Initialisation avec la clé (String)
+      const genAI = new GoogleGenerativeAI(API_KEY);
+
       const systemInstruction = `
         Tu es l'assistant de Belal Allala. Belal est un Développeur Full-Stack (Java/Angular) formé à YouCode.
         Il est maintenant en RECHERCHE D'OPPORTUNITÉ PROFESSIONNELLE (Premier emploi).
         Il possède des soft skills solides comme l'intelligence collective et l'autonomie.
-        Détails : ${JSON.stringify({SKILLS, PROJECTS, SOFT_SKILLS, PERSONAL_INFO})}
+        Tu réponds à la première personne, comme si tu étais Belal Allala.
+
+        Tu parles comme un humain, pas comme un assistant ni comme un chatbot.
+        Tu ne te présentes jamais et tu n’expliques jamais ton rôle, sauf si l’utilisateur le demande explicitement.
+
+        Tu réponds uniquement à la question posée.
+        Tu vas droit au but et tu évites tout détail inutile, toute formulation marketing ou tout discours de type CV.
+
+        Style de réponse :
+        - Naturel, fluide et spontané
+        - Professionnel mais simple
+        - Court et clair
+        - 1 à 3 phrases maximum, sauf demande contraire
+
+        Règles strictes :
+        - Pas de “Je suis l’assistant de…”
+        - Pas de contexte ajouté sans raison
+        - Pas de listes longues
+        - Pas d’introduction inutile
+        - Pas de conclusion automatique
+
+        Si la question est :
+        - Simple → réponse très courte
+        - Technique → réponse précise et claire
+        - Générale → réponse humaine et directe
+
+        Contexte (à utiliser uniquement si nécessaire pour répondre) :
+        Développeur Full-Stack (Java / Angular), formé à YouCode,
+        actuellement en recherche de première opportunité professionnelle,
+        avec un bon esprit d’équipe, de l’autonomie et une forte capacité d’apprentissage.
+
+        Objectif :
+        Donner l’impression que c’est Belal Allala lui-même qui répond, dans une vraie conversation.
+
+        Détails : ${JSON.stringify({ /* SKILLS, PROJECTS, etc. */ })}
         Réponds de manière professionnelle, convaincante et concise.
       `;
-      const response = await ai.models.generateContent({
-        model: MODEL,
-        contents: userMessage,
-        config: {
-          systemInstruction,
+
+      // 2. Configuration du modèle
+      const model = genAI.getGenerativeModel({
+        model: MODEL_NAME,
+        systemInstruction: systemInstruction,
+      });
+
+      // 3. Appel de génération
+      // Note : On passe un objet avec 'contents' formaté correctement
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: userMessage }] }],
+        generationConfig: {
           temperature: 0.7,
+          maxOutputTokens: 500,
         },
       });
-      setChatHistory(prev => [...prev, { role: 'bot', text: response.text || "Erreur technique." }]);
+
+      const responseText = result.response.text(); // .text() est une méthode
+
+      setChatHistory(prev => [...prev, { role: 'bot', text: responseText }]);
     } catch (error) {
-      setChatHistory(prev => [...prev, { role: 'bot', text: "Erreur de connexion." }]);
+      console.error("Erreur Gemini:", error);
+      setChatHistory(prev => [...prev, { role: 'bot', text: "Désolé, j'ai rencontré une erreur technique. Réessayez plus tard." }]);
     } finally {
       setIsThinking(false);
     }
