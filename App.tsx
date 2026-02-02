@@ -28,7 +28,7 @@ import {
   CheckCircle,
   Lightbulb
 } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/generative-ai";
 import { Section } from './components/Section';
 import { 
   PERSONAL_INFO, 
@@ -96,6 +96,10 @@ const TechLogo = ({ name }: { name: string }) => {
   );
 };
 
+const API_KEY = import.meta.env.VITE_API_KEY as string;
+const MODEL = "gemini-3-flash-preview";
+const URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+
 const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -121,7 +125,7 @@ const App: React.FC = () => {
     setIsThinking(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: API_KEY });
       const systemInstruction = `
         Tu es l'assistant de Belal Allala. Belal est un Développeur Full-Stack (Java/Angular) formé à YouCode.
         Il est maintenant en RECHERCHE D'OPPORTUNITÉ PROFESSIONNELLE (Premier emploi).
@@ -130,9 +134,12 @@ const App: React.FC = () => {
         Réponds de manière professionnelle, convaincante et concise.
       `;
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: MODEL,
         contents: userMessage,
-        config: { systemInstruction, temperature: 0.7 }
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        },
       });
       setChatHistory(prev => [...prev, { role: 'bot', text: response.text || "Erreur technique." }]);
     } catch (error) {
